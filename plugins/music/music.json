@@ -1,0 +1,60 @@
+{
+    "style": "gnu",
+    "cmd": "music",
+    "subcmd": [
+        {
+            "keyword": "play",
+            "collect": 1,
+            "accept": "word"
+        },
+        {
+            "keyword": "search",
+            "collect": 1,
+            "accept": "word"
+        }
+    ],
+    "options": {
+        "keywords": [
+            {
+                "id": 0,
+                "op": {
+                    "short": "h",
+                    "long": "help"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "display this information"
+            },
+            {
+                "id": 1,
+                "op": {
+                    "short": "l",
+                    "long": "limit"
+                },
+                "collect": 1,
+                "check": "(e) => Number(e) > 0",
+                "help": "最大歌曲结果数量"
+            },
+            {
+                "id": 2,
+                "op": {
+                    "short": "a",
+                    "long": "accept"
+                },
+                "collect": 1,
+                "check": "(e) => Number(e) > 0",
+                "help": "最大歌曲搜索范围大小"
+            }
+        ],
+        "conflicts": {}
+    },
+    "config": {
+        "ignore": {
+            "unknown": false,
+            "bad_option": false,
+            "bad_collect": true,
+            "case": false,
+            "repeated": false
+        }
+    }
+}
