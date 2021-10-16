@@ -381,4 +381,4 @@ client.on('system.login.slider', function (event) {
 		process.stdin.once('data', () => {
 		this.login();
 	});
-}).login('nes07532196svl');
+}).login('********');
