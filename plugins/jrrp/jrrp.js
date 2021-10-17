@@ -15,5 +15,6 @@ function getRp(uid, year, month, day)
 
 module.exports =
 {
+	getRandom,
 	getRp
 };

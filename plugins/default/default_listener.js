@@ -115,6 +115,8 @@ function listener_6(info)
 	if (index == -1) return;
 
 	const gid = event.group_id;
+	const uid = event.sender.user_id;
+	if (uid == event.self_id) bot.withdrawMessage(event.message_id);
 
 	var argv = msg.cmd[index].argv;
 

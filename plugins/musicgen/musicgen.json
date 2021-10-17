@@ -1,0 +1,70 @@
+{
+    "style": "gnu",
+    "cmd": "musicgen",
+    "subcmd": [
+        {
+            "keyword": "list",
+            "collect": 0,
+            "accept": "word"
+        },
+        {
+            "keyword": "view",
+            "collect": 1,
+            "accept": "word"
+        },
+        {
+            "keyword": "play",
+            "collect": 1,
+            "accept": "word"
+        },
+        {
+            "keyword": "help",
+            "collect": 0,
+            "accept": "word"
+        }
+    ],
+    "options": {
+        "keywords": [
+            {
+                "id": 0,
+                "op": {
+                    "short": "h",
+                    "long": "help"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "调教方法"
+            },
+            {
+                "id": 1,
+                "op": {
+                    "short": "b",
+                    "long": "bpm"
+                },
+                "collect": 1,
+                "check": "(e) => !isNaN(Number(e)) && Number(e) >= 4",
+                "help": "音乐速度"
+            },
+            {
+                "id": 2,
+                "op": {
+                    "short": "s",
+                    "long": "save"
+                },
+                "collect": 1,
+                "check": "() => true",
+                "help": "保存音乐"
+            }
+        ],
+        "conflicts": {}
+    },
+    "config": {
+        "ignore": {
+            "unknown": true,
+            "bad_option": false,
+            "bad_collect": true,
+            "case": true,
+            "repeated": false
+        }
+    }
+}

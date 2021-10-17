@@ -1,0 +1,102 @@
+{
+  "_from": "NeteaseCloudMusicApi",
+  "_id": "NeteaseCloudMusicApi@4.0.23",
+  "_inBundle": false,
+  "_integrity": "sha1-bzyXCKo4/zrDEo0CuwpPzrbFydI=",
+  "_location": "/NeteaseCloudMusicApi",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "NeteaseCloudMusicApi",
+    "name": "NeteaseCloudMusicApi",
+    "escapedName": "NeteaseCloudMusicApi",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmmirror.com/NeteaseCloudMusicApi/download/NeteaseCloudMusicApi-4.0.23.tgz",
+  "_shasum": "6f3c9708aa38ff3ac3128d02bb0a4fceb6c5c9d2",
+  "_spec": "NeteaseCloudMusicApi",
+  "_where": "F:\\MelaiiBot",
+  "author": {
+    "name": "binaryify"
+  },
+  "bin": {
+    "NeteaseCloudMusicApi": "app.js"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "axios": "^0.21.1",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.1.9",
+    "md5": "^2.3.0",
+    "music-metadata": "^7.5.3",
+    "pac-proxy-agent": "^5.0.0",
+    "qrcode": "^1.4.4",
+    "safe-decode-uri-component": "^1.2.1",
+    "tunnel": "^0.0.6"
+  },
+  "deprecated": false,
+  "description": "网易云音乐 NodeJS 版 API",
+  "devDependencies": {
+    "@types/node": "14.17.15",
+    "@typescript-eslint/eslint-plugin": "4.30.0",
+    "@typescript-eslint/parser": "4.30.0",
+    "eslint": "7.32.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-html": "6.1.2",
+    "eslint-plugin-prettier": "4.0.0",
+    "husky": "7.0.1",
+    "intelli-espower-loader": "1.1.0",
+    "lint-staged": "11.1.2",
+    "mocha": "8.4.0",
+    "power-assert": "1.6.1",
+    "prettier": "2.3.0",
+    "typescript": "4.4.2"
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "files": [
+    "module",
+    "util",
+    "plugins",
+    "main.d.ts",
+    "interface.d.ts",
+    "module_types"
+  ],
+  "keywords": [
+    "网易云音乐",
+    "网易云",
+    "音乐",
+    "网易云音乐nodejs"
+  ],
+  "license": "MIT",
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "main": "main.js",
+  "name": "NeteaseCloudMusicApi",
+  "pkg": {
+    "scripts": "module/*.js"
+  },
+  "scripts": {
+    "lint": "eslint \"**/*.{js,ts}\"",
+    "lint-fix": "eslint --fix \"**/*.{js,ts}\"",
+    "pkglinux": "pkg . -t node14-linux-x64 -o app",
+    "pkgmacos": "pkg . -t node14-macos-x64 -o app",
+    "pkgwin": "pkg . -t node14-win-x64 -o app",
+    "prepare": "husky install",
+    "start": "node app.js",
+    "test": "mocha -r intelli-espower-loader -t 20000 app.test.js --exit"
+  },
+  "types": "./interface.d.ts",
+  "version": "4.0.23"
+}

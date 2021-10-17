@@ -1,0 +1,115 @@
+{
+    "style": "gnu",
+    "cmd": "hush-battle",
+    "subcmd": [
+        {
+            "keyword": "help",
+            "collect": 0,
+            "accept": "word"
+        },
+        {
+            "keyword": "init",
+            "collect": 0,
+            "accept": "word"
+        },
+        {
+            "keyword": "list",
+            "collect": 1,
+            "accept": "word"
+        },
+        {
+            "keyword": "view",
+            "collect": 1,
+            "accept": "word"
+        },
+        {
+            "keyword": "login",
+            "collect": 0,
+            "accept": "word"
+        },
+        {
+            "keyword": "logout",
+            "collect": 0,
+            "accept": "word"
+        },
+        {
+            "keyword": "join",
+            "collect": 0,
+            "accept": "word"
+        },
+        {
+            "keyword": "PVE",
+            "collect": 0,
+            "accept": "word"
+        },
+        {
+            "keyword": "PVP",
+            "collect": 0,
+            "accept": "word"
+        }
+    ],
+    "options": {
+        "keywords": [
+            {
+                "id": 0,
+                "op": {
+                    "short": "h",
+                    "long": "help"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "显示当前帮助文档"
+            },
+            {
+                "id": 1,
+                "op": {
+                    "short": "j",
+                    "long": "join"
+                },
+                "collect": 1,
+                "check": "() => true",
+                "help": "加入PVE/PVP战场"
+            },
+            {
+                "id": 2,
+                "op": {
+                    "short": "q",
+                    "long": "quit"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "退出PVE/PVP战场"
+            },
+            {
+                "id": 3,
+                "op": {
+                    "short": "f",
+                    "long": "force"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "强制执行命令"
+            },
+            {
+                "id": 4,
+                "op": {
+                    "short": "m",
+                    "long": "more"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "显示更多信息，一般用于view子命令"
+            }
+        ],
+        "conflicts": {}
+    },
+    "config": {
+        "ignore": {
+            "unknown": true,
+            "bad_option": true,
+            "bad_collect": false,
+            "case": true,
+            "repeated": false
+        }
+    }
+}

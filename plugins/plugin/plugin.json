@@ -1,0 +1,39 @@
+{
+    "style": "gnu",
+    "cmd": "plugin",
+    "subcmd": [
+        {
+            "keyword": "register",
+            "collect": 1,
+            "accept": "word"
+        },
+        {
+            "keyword": "remove",
+            "collect": 1,
+            "accept": "word"
+        },
+        {
+            "keyword": "reload",
+            "collect": 1,
+            "accept": "word"
+        },
+        {
+            "keyword": "list",
+            "collect": 0,
+            "accept": "word"
+        }
+    ],
+    "options": {
+        "keywords": [],
+        "conflicts": {}
+    },
+    "config": {
+        "ignore": {
+            "unknown": true,
+            "bad_option": true,
+            "bad_collect": true,
+            "case": true,
+            "repeated": false
+        }
+    }
+}

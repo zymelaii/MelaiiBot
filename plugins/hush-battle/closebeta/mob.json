@@ -1,0 +1,13 @@
+{
+	"card": "小怪",
+	"level": 3,
+	"attribute": {
+		"health": 250,
+		"power": 16,
+		"strength": 8,
+		"agile": 1,
+		"wisdom": 80,
+		"hp_recovery": 4,
+		"mp_recovery": 0.25
+	}
+}

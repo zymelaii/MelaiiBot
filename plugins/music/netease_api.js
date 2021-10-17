@@ -1,106 +1,87 @@
+"use strict"
+
 const request = require('sync-request');
 const { asyncRequest } = require('../../lib/utils');
+const { exec } = require('child_process');
+const path = require('path');
 
 var is_proxy_running = false;
 
-function httpGet(url)
+async function isRunning()
 {
-	url = encodeURI(url)
-	return request('GET', url);
+	if (is_proxy_running) return true;
+
+	let url = 'http://localhost:3000/login/status';
+	return (async () => {
+		is_proxy_running = await asyncRequest(url)
+			.then((e) => {
+				console.log('[INFO] netease_api.isRunning:', e);
+				return true;
+			})
+			.catch((e) => {
+				console.error(`[ERROR] ${e.message}`);
+				return false;
+			});
+		return is_proxy_running;
+	})();
 }
 
-function isRunning()
+async function startServer()
 {
-	if (!is_proxy_running)
+	if (!await isRunning())
 	{
-		try {
-			let url = 'http://localhost:3000/login/status';
-			let resp = JSON.parse(httpGet(url).getBody('utf8'));
-			if (resp.data.code == 200)
-			{
-				is_proxy_running = true;
-			}
-		} catch(e) {
-			console.log('[ERROR] ' + e.message);
-		}
-	} else
-	{
-		return true;
+		const app_path = path.resolve(__dirname, 'NeteaseCloudMusicApi/app.js');
+		exec(`node ${app_path}`);
 	}
-
-	return is_proxy_running;
 }
 
-function countOfComment(id)
+async function countOfComment(id)
 {
 	let url = 'http://localhost:3000/comment/music?id=' + id + '&limit=1';
-	let count = 0;
-	try {
-		count = JSON.parse(httpGet(url).getBody('utf8')).total;
-	} catch {
-		//TODO
-	}
-	return count;
+	return (async () => {
+		let resp = await asyncRequest(url);
+		try { return JSON.parse(resp).total; } catch { return 0; }
+	})()
 }
 
-async function asyncGroupCountOfCommont(id_arr, resolve)
+async function batchCountOfComment(id_arr)
 {
 	let url = 'http://localhost:3000/comment/music?limit=1&id=';
-	let count_arr = new Array(id_arr.length);
-	for (let i in id_arr)
-	{
-		try {
-			asyncRequest(url + id_arr[i], (resoponse) => {
-				try {
-					count_arr[i] = JSON.parse(response).total;
-				} catch {
-					count_arr[i] = 0;
-				}
-			});
-		} catch(e) {
-			console.log('[ERROR] asyncGroupCountOfCommont('
-				+ i +') failed (' + e.message + ')');
-		}
-	}
-	resolve(count_arr.slice(0));
+	let workers = [];
+	id_arr.forEach((e) => {
+		workers.push((async (e) => {
+			let resp = await asyncRequest(url + e);
+			try { return JSON.parse(resp).total; } catch { return 0; }
+		})(e));
+	});
+	return Promise.all(workers);
 }
 
-function search(name, limit, type)
+async function search(name, limit, type, offset)
 {
 	let url = 'http://localhost:3000/search?keywords=';
 
 	url += name;
 
-	if (limit != null && limit != 0) url += '&limit=' + limit;
-	if (type != null) url += '&type=' + type;
-
-	return JSON.parse(httpGet(url).getBody('utf8'));
-}
-
-async function asyncSearch(name, limit, type, resolve)
-{
-	let url = 'http://localhost:3000/search?keywords=';
-
-	url += name;
-
-	if (limit != null && limit != 0) url += '&limit=' + limit;
-	if (type != null) url += '&type=' + type;
+	if (limit  != null && limit != 0) url += '&limit=' + limit;
+	if (type   != null) url += '&type=' + type;
 	if (offset != null) url += '&offset=' + offset;
 
-	await asyncRequest(url, (response) => {
+	return (async () => {
 		try {
-			resolve(JSON.parse(response));
+			let resp = await asyncRequest(url);
+			return JSON.parse(resp);
 		} catch(e) {
-			console.log('[ERROR] netease_api.asyncSearch:', e.message);
+			console.error(`[ERROR] netease_api.search: ${e.message}`)
+			return null;
 		}
-	});
+	})();
 }
 
-async function asyncBatchSearch(name, limit, type, resolve)
+async function batchSearch(name, limit, type)
 {
 	if (type == null) type = 1;
 
-	// const onceMaxCount = 100; //单次最大下载量
 	const onceMaxCount = 30;
 
 	let url = 'http://localhost:3000/search?';
@@ -108,22 +89,34 @@ async function asyncBatchSearch(name, limit, type, resolve)
 	url += '&type=' + type;
 
 	let totalCount = null;
+	let errmsg = null;
 	try {
-		totalCount = search(name, 1, type).result.songCount;
+		let result = (await search(name, 1, type)).result;
+		totalCount = result?.songCount;
+		if (totalCount == 0)
+		{
+			if (result.songs.length != 0) totalCount = result.songs.length;
+			if (totalCount == 0) totalCount = null;
+		}
 		console.log('[INFO] netease_api.asyncBatchSearch:',
-			totalCount, 'songs available');
+				Number(totalCount), 'songs available');
 	} catch(e) {
-		totalCount = 0;
-		resolve({
+		totalCount = null;
+		errmsg = e.message;
+	};
+
+	if (totalCount == null)
+	{
+		return {
 			status: {
 				code: 1, //failed
-				message: 'no available search results (' + e.message + ')'
+				message: 'no available search results'
+					+ (errmsg ? `(${errmsg})` : '')
 			},
 			songs: [],
 			total: totalCount
-		});
-		return;
-	};
+		};
+	}
 
 	if (limit == null || limit > totalCount) limit = totalCount;
 
@@ -135,49 +128,42 @@ async function asyncBatchSearch(name, limit, type, resolve)
 	}
 	limitSlice.push(limit);
 
-	var songs = []; //此处未加锁，可能出现错误！
-
 	var workers = [];
-	const appendData = (data) => {
-		let new_songs = data.result.songs;
-		songs = songs.concat(new_songs.slice(0));
-		// console.log('[INFO] netease_api.asyncBatchSearch: completed '
-		// 	+ new_songs.length + ' items');
-	};
-
+	var thisCount;
 	for (let i = 0; i < limitSlice.length; ++i)
 	{
-		thisUrl = url
+		let thisUrl = url
 			+ '&limit=' + limitSlice[i]
 			+ '&offset=' + onceMaxCount * i;
-		workers.push(asyncRequest(thisUrl, (response) => {
-			try {
-				appendData(JSON.parse(response));
-			} catch(e) {
-				console.log('[ERROR] netease_api.asyncBatchSearch: ['
-					+ i + '] ' + e.message);
-			}
-		}));
+		workers.push((async () => {
+			let resp = await asyncRequest(thisUrl);
+			return JSON.parse(resp).result.songs;
+		})());
 	}
 
-	Promise.all(workers).then((e) => {
-		resolve({
+	return (async () => {
+		var songs_arr = await Promise.all(workers);
+		var songs = [];
+		songs_arr.forEach((e) => { songs = songs.concat(e) });
+		return {
 			status: {
 				code: 0,
 				message: 'success'
 			},
 			songs: songs,
 			total: totalCount
-		});
-	});
+		};
+	})();
 }
+
+// startServer();
 
 module.exports =
 {
 	isRunning,
+	startServer,
 	countOfComment,
-	asyncGroupCountOfCommont,
+	batchCountOfComment,
 	search,
-	asyncSearch,
-	asyncBatchSearch
+	batchSearch
 };

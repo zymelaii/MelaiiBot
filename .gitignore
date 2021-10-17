@@ -105,7 +105,8 @@ dist
 # TernJS port file
 .tern-port
 
+node_modules
+bin
 data
-
-ariky.js
 melaii.js
+index.d.ts

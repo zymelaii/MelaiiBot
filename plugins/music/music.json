@@ -44,6 +44,16 @@
                 "collect": 1,
                 "check": "(e) => Number(e) > 0",
                 "help": "最大歌曲搜索范围大小"
+            },
+            {
+                "id": 3,
+                "op": {
+                    "short": "n",
+                    "long": "name"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "按歌名播放"
             }
         ],
         "conflicts": {}

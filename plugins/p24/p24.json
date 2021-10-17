@@ -1,0 +1,60 @@
+{
+    "style": "gnu",
+    "cmd": "p24",
+    "subcmd": [
+        {
+            "keyword": "play",
+            "collect": 1,
+            "accept": "word"
+        },
+        {
+            "keyword": "search",
+            "collect": 1,
+            "accept": "word"
+        }
+    ],
+    "options": {
+        "keywords": [
+            {
+                "id": 0,
+                "op": {
+                    "short": "h",
+                    "long": "help"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "display this information"
+            },
+            {
+                "id": 1,
+                "op": {
+                    "short": "f",
+                    "long": "force"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "强制生成"
+            },
+            {
+                "id": 2,
+                "op": {
+                    "short": "s",
+                    "long": "skip"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "跳过本次游戏"
+            }
+        ],
+        "conflicts": {}
+    },
+    "config": {
+        "ignore": {
+            "unknown": true,
+            "bad_option": false,
+            "bad_collect": true,
+            "case": false,
+            "repeated": false
+        }
+    }
+}

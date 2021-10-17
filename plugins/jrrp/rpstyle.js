@@ -15,10 +15,12 @@ function toBigChineseStyle(num)
 function toCircledNumberStyle(num)
 {
 	const charset = '〇①②③④⑤⑥⑦⑧⑨';
-	return String(num).split('')
+	let text = String(num).split('')
 		.map((e) => charset[Number(e)])
 		.join('');
-}
+	if (Number(num) < 0) text = '-' + text;
+	return text;
+ }
 
 const rpStyles =
 {
