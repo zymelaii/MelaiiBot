@@ -105,8 +105,6 @@ dist
 # TernJS port file
 .tern-port
 
-node_modules
 bin
 data
 melaii.js
-index.d.ts

@@ -11,7 +11,10 @@ function listener_0(info)
 
 	if (tid == bot.uin)
 	{
-		bot.sendGroupMsg(gid, 'o(>﹏<)o不要啊~');
+		// bot.sendGroupMsg(gid, 'o(>﹏<)o不要啊~');
+		let cc = ['', '（GUN！', '（你想干什么！', '（要你嗷，真的！'];
+		const i = require('../../lib/utils').randomInt(0, 3);
+		bot.sendGroupMsg(gid, `嗷呜~${cc[i]}`);
 	}
 }
 

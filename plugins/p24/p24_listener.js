@@ -11,7 +11,7 @@ const cmdDesc = parser.fixdesc(
 	loadFileAsJson(path.resolve(__dirname, 'p24.json'))
 );
 
-async function performCreate(info, createInfo)
+async function performCreate(info, createData)
 {
 	const bot    = info.bot;
 	const gid    = info.event.group_id;
@@ -78,7 +78,7 @@ async function performAnwser(info)
 
 	if (p24.preGuess24Solution(gid, expr))
 	{
-		if (p24.preGuess24Solution(gid, expr))
+		if (p24.guess24Solution(gid, expr))
 		{
 			bot.sendGroupMsg(gid, cqcode.at(uid) + ' 好腻害！答对啦(*^▽^*)！');
 			p24.remove24Game(gid);
@@ -132,7 +132,7 @@ function listener_0(info)
 	if (iscmd)
 		parser.execute(raw_cmd, cmdDesc, async (subcmd, argeles, freewords) => {
 			var target = freewords
-				.map((e) => Number(e.keyword))
+				.map((e) => Number(e.word))
 				.filter((e) => !isNaN(e))[0];
 			if (!target) target = 24;
 

@@ -34,9 +34,9 @@ function create24Game(gid, uid, target, generator)
 		};
 	}
 
-	var isIlligalTarget = false;
-	var _status_code;
-	var _status_info;
+	let isIlligalTarget = false;
+	let _status_code;
+	let _status_info;
 
 	if (typeof(target) != 'number')
 	{
@@ -60,7 +60,7 @@ function create24Game(gid, uid, target, generator)
 		target = 24;
 	}
 
-	var nums = generator(target);
+	let nums = generator(target);
 
 	if (nums.length == 0)
 	{
@@ -109,8 +109,8 @@ function preGuess24Solution(gid, input)
 
 function guess24Solution(gid, input)
 {
-	//previously callde preGuess24Solution
-	var correct = eval24(input, p24_games[gid].target);
+	//! previously called preGuess24Solution
+	let correct = eval24(input, p24_games[gid].target);
 	if (!correct)
 	{
 		--p24_games[gid].left_chance;
@@ -133,7 +133,7 @@ function forceCreate24Game(gid, uid, target)
 		throw Error('MelaiiBot-Plugin[p24]: target shouldn\'t be null');
 
 	return create24Game(gid, uid, target, (e) => {
-		var nums;
+		let nums;
 		while (nums = gen24(target), nums.length == 0);
 		return nums;
 	});
@@ -141,7 +141,7 @@ function forceCreate24Game(gid, uid, target)
 
 function get24GameSolution(gid)
 {
-	var game = p24_games[gid];
+	let game = p24_games[gid];
 	if (game == null) return [];
 
 	return calc24(game.target, game.numbers).slice(0, 8);
