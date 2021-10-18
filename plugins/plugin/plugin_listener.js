@@ -77,7 +77,7 @@ function performReload(info, reloadData)
 	}
 
 	const plugin_name = reloadData.plugin;
-	let resp = plugin.register(bot, plugin_name);
+	let resp = plugin.register(bot, plugin_name, true);
 	let status = resp.status_code;
 
 	if (status == 0)
@@ -87,7 +87,7 @@ function performReload(info, reloadData)
 	} else
 	{
 		bot.sendMsg('插件重载失败！', { gid: gid, uid: uid });
-		if (status != -4) bot.error(`MelaiiBot@plugins.plugin: ${resp.errmsg}`);
+		if (status != -4) bot.mark(`MelaiiBot@plugins.plugin: ${resp.errmsg}`);
 		else bot.warn(`插件 ${plugin_name} 重载失败（${resp.exception.message}）`);
 	}
 }

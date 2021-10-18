@@ -102,7 +102,7 @@ function listener_0(info)
 			break;
 		}
 	}).catch((e) => {
-		console.error('[ERROR] plugin.env:', e.message);
+		bot.error('plugin.env:', e.message);
 	});
 }
 
@@ -112,7 +112,7 @@ const description =
 	setup: setup,
 	actions: [{
 		event: 'message',
-		subname: 'ctrl',
+		subname: 'env-ctrl',
 		action: listener_0
 	}]
 };
