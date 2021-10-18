@@ -7,7 +7,7 @@ const { evaluate } = require('mathjs');
 function calc24(target, nums)
 {   //@ p24-calc.cpp
     var results = execSync(
-        path.resolve('./bin/p24-calc') + ' '
+        path.resolve(__dirname, './bin/p24-calc') + ' '
         + [...nums, target].join(' ')).toString().split('\n');
     results = [...new Set(results.map(e => e.trim()).filter(e => e != ''))]
     return results;
@@ -16,7 +16,7 @@ function calc24(target, nums)
 function gen24(target)
 {   //@ p24-gen.cpp
     var results = execSync(
-        path.resolve('./bin/p24-gen') + ' '
+        path.resolve(__dirname, './bin/p24-gen') + ' '
         + String(target)).toString().split(' ');
     results = [...results.map(e => e.trim()).filter(e => e != '')]
     return results;

@@ -3,7 +3,7 @@
 const path = require('path');
 const { loadFileAsJson } = require('../../lib/filesys');
 const parser = require('../../lib/parser');
-const plugin = require('./plugin');
+const plugin = require('../../lib/plugin');
 
 const cmdDesc = parser.fixdesc(
 	loadFileAsJson(path.resolve(__dirname, 'plugin.json'))

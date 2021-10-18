@@ -3,6 +3,7 @@
 const path = require('path');
 const { loadFileAsJson } = require('../../lib/filesys');
 const parser = require('../../lib/parser');
+const plugin = require('../../lib/plugin');
 
 const cmdDesc = parser.fixdesc(
 	loadFileAsJson(path.resolve(__dirname, 'env.json'))
@@ -32,9 +33,6 @@ function performNew(info, newData)
 		bot.switchTo(env, true);
 		if (bot.envs.includes(env))
 		{
-			const plugin = require('../plugin/plugin');
-			plugin.register(bot, 'plugin');
-			plugin.register(bot, 'env');
 			bot.sendMsg(`环境"${env}"创建成功！`, { gid: gid, uid:uid });
 		} else
 		{

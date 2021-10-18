@@ -1,6 +1,27 @@
 "use strict";
 
 const { segment, cqcode } = require("oicq");
+const utils = require('../../lib/utils');
+
+function setup(bot, field)
+{
+	/// plugin.default.poke-response
+	//! @attribute: pokeCounts: Map<Integer->Integer>
+	//! 	每个群持有一个戳一戳计数
+	//! 	初始计数为0，上限计数为8
+	//! 	当超过上限计数时，计数将被重置为-1且该动作进入休眠状态
+	//! 	休眠状态结束后，计数重置为0
+	field.pokeCounts = { /*gid: count*/ };
+	field.pokeWords = [
+		'o(>﹏<)o不要啊~',
+		'嗷呜~',
+		'嗷呜~（你想干什么！',
+		'嗷呜~（咬你奥，说真的！',
+		'嗷呜~（好舒服……',
+		'嗷呜~（滚！',
+		'嗯？有什么事吗。'
+	];
+}
 
 function listener_0(info)
 {	//@notice.group.poke
@@ -11,17 +32,29 @@ function listener_0(info)
 
 	if (tid == bot.uin)
 	{
-		// bot.sendGroupMsg(gid, 'o(>﹏<)o不要啊~');
-		let cc = ['', '（GUN！', '（你想干什么！', '（要你嗷，真的！'];
-		const i = require('../../lib/utils').randomInt(0, 3);
-		bot.sendGroupMsg(gid, `嗷呜~${cc[i]}`);
+		let field = bot.getShared('default');
+		let pokeCounts = field.pokeCounts;
+
+		if (!(gid in pokeCounts)) pokeCounts[gid] = 0;
+		else if (pokeCounts[gid] == -1) return;
+
+		if (++pokeCounts[gid] > 8)
+		{
+			bot.sendGroupMsg(gid, '哼，大坏蛋，不理你们了！');
+			pokeCounts[gid] = -1;
+			//! 执行十分钟休眠
+			setTimeout(() => { pokeCounts[gid] = 0; }, 10 * 60 * 1000);
+		} else
+		{
+			const pokeWords = field.pokeWords;
+			bot.sendGroupMsg(gid, pokeWords[utils.randomInt(0, pokeWords.length - 1)]);
+		}
 	}
 }
 
 function listener_1(info)
 {	//@message.group.normal
 	//猜拳
-
 	const bot = info.bot;
 	const event = info.event;
 	const gid = event.group_id;
@@ -131,6 +164,7 @@ function listener_6(info)
 const description =
 {
 	plugin: 'default',
+	setup: setup,
 	actions: [{
 		event: 'notice.group.poke',
 		subname: 'poke-response',
