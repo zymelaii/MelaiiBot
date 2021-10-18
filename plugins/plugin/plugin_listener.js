@@ -118,9 +118,6 @@ function listener_0(info)
 	let raw_cmd = event.raw_message.slice(1);
 
 	parser.execute(raw_cmd, cmdDesc, async (subcmd, argeles, freewords) => {
-		bot.trace('plugin.listener:', subcmd);
-		bot.trace('plugin.listener:', argeles);
-		bot.trace('plugin.listener:', freewords);
 		switch (subcmd.keyword)
 		{
 			case 'register':
