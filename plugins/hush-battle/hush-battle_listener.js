@@ -37,8 +37,7 @@ async function performInit(info, overwrite)
 		case  1: bot.sendGroupMsg(gid, `[系统消息] 服务器 ${gid} 已存在`); break;
 		case  2: bot.sendGroupMsg(gid, `[系统消息] 服务器 ${gid} 已重置`); break;
 		default:
-			console.log(
-				'[ERROR] plugin.hush-battle.performInit: unexpected branch entry');
+			bot.error('plugin.hush-battle.performInit: unexpected branch entry');
 			break;
 	}
 

@@ -33,7 +33,7 @@ function performNew(info, newData)
 		bot.switchTo(env, true);
 		if (bot.envs.includes(env))
 		{
-			bot.sendMsg(`环境"${env}"创建成功！`, { gid: gid, uid:uid });
+			bot.sendMsg(`环境【${env}】创建成功！`, { gid: gid, uid:uid });
 		} else
 		{
 			bot.sendMsg(`环境创建失败！`, { gid: gid, uid:uid });
@@ -58,17 +58,17 @@ function performSet(info, setData)
 
 	if (env == bot.env)
 	{
-		bot.sendMsg(`现在已经是"${env}"环境啦~`, { gid: gid, uid:uid });
+		bot.sendMsg(`现在已经是【${env}】环境啦~`, { gid: gid, uid:uid });
 		return;
 	}
 
 	if (!bot.envs.includes(env))
 	{
-		bot.sendMsg(`环境"${env}"不存在！`, { gid: gid, uid:uid });
+		bot.sendMsg(`环境【${env}】不存在！`, { gid: gid, uid:uid });
 	} else
 	{
 		bot.switchTo(env);
-		bot.sendMsg(`成功切换到"${env}"环境啦！`, { gid: gid, uid:uid });
+		bot.sendMsg(`成功切换到【${env}】环境啦！`, { gid: gid, uid:uid });
 	}
 }
 

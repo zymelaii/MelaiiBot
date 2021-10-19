@@ -16,8 +16,7 @@ function createServerDesc(server, rolelist)
 	//! popularity: 热度
 	//! role_total: 服务器总人数
 	//! active_total: 活跃人数（七天内上线人数）
-	//! active_ratio: 活跃系数（活跃人数/总人数）
-	///
+	/// active_ratio: 活跃系数（活跃人数/总人数）
 
 	let _server       = utils.randomCNCommon(utils.randomInt(2, 6));
 	let _sid          = server;
@@ -60,6 +59,9 @@ class HBServer
 		this._rolelist     = loadServerRoles(this._serverinfo.sid);
 		this._blacklist    = this._serverinfo.blacklist;
 		this._online_roles = [/*uid: Number*/];
+
+		this._tasklist     = {/*Timer*/};
+		this._
 	}
 
 	get sid()
@@ -108,6 +110,8 @@ class HBServer
 
 		this._rolelist[index].login();
 		this._online_roles.push(uid);
+
+		++this._serverinfo.popularity;
 	}
 
 	disconnect(uid)

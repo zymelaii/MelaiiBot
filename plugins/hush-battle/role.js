@@ -34,7 +34,11 @@ function newDefaultRole(registerData)
 	//!         HP: 生命值
 	//!         MP: 能量值
 	//!     },
-	/// }
+	//! },
+	//! record: { 纪录信息
+	//!		death: 死亡次数
+	//! 	killed: 总击杀数
+	//! }
 
 	let roleinfo               = {};
 
@@ -58,6 +62,9 @@ function newDefaultRole(registerData)
 
 	roleinfo.attribute.dynamic.HP = roleinfo.attribute.stable.health;
 	roleinfo.attribute.dynamic.MP = roleinfo.attribute.stable.power;
+
+	roleinfo.record.death  = 0;
+	roleinfo.record.killed = 0;
 
 	return roleinfo;
 }
