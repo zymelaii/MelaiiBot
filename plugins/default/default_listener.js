@@ -2,8 +2,9 @@
 
 const { segment, cqcode } = require("oicq");
 const utils = require('../../lib/utils');
+const parser = require('../../lib/parser');
 
-function setup(bot, field)
+function setup(field)
 {
 	/// plugin.default.poke-response
 	//! @attribute: pokeCounts: Map<Integer->Integer>
@@ -23,16 +24,14 @@ function setup(bot, field)
 	];
 }
 
-function listener_0(info)
+function listener_0(event)
 {	//@notice.group.poke
-	const bot = info.bot;
-	const event = info.event;
 	const tid = event.target_id;
 	const gid = event.group_id;
 
-	if (tid == bot.uin)
+	if (tid == this.uin)
 	{
-		let field = bot.getShared('default');
+		let field = this.getShared('default');
 		let pokeCounts = field.pokeCounts;
 
 		if (!(gid in pokeCounts)) pokeCounts[gid] = 0;
@@ -40,87 +39,64 @@ function listener_0(info)
 
 		if (++pokeCounts[gid] > 8)
 		{
-			bot.sendGroupMsg(gid, '哼，大坏蛋，不理你们了！');
+			this.sendGroupMsg(gid, '哼，大坏蛋，不理你们了！');
 			pokeCounts[gid] = -1;
 			//! 执行十分钟休眠
 			setTimeout(() => { pokeCounts[gid] = 0; }, 10 * 60 * 1000);
 		} else
 		{
 			const pokeWords = field.pokeWords;
-			bot.sendGroupMsg(gid, pokeWords[utils.randomInt(0, pokeWords.length - 1)]);
+			this.sendGroupMsg(gid, pokeWords[utils.randomInt(0, pokeWords.length - 1)]);
 		}
 	}
 }
 
-function listener_1(info)
+function listener_1(event)
 {	//@message.group.normal
 	//猜拳
-	const bot = info.bot;
-	const event = info.event;
 	const gid = event.group_id;
 
 	if (event.raw_message == '猜拳')
 	{
-		bot.sendGroupMsg(gid, cqcode.rps(Math.floor(Math.random() * 3) + 1));
+		this.sendGroupMsg(gid, cqcode.rps(Math.floor(Math.random() * 3) + 1));
 	}
 }
 
-function listener_2(info)
+function listener_2(event)
 {	//@message.group.normal
 	//骰子
-	const bot = info.bot;
-	const event = info.event;
 	const gid = event.group_id;
 
 	if (event.raw_message == '骰子')
 	{
-		bot.sendGroupMsg(gid, cqcode.dice(Math.floor(Math.random() * 6) + 1));
+		this.sendGroupMsg(gid, cqcode.dice(Math.floor(Math.random() * 6) + 1));
 	}
 }
 
-function listener_3(info)
-{	//@message.group.normal
-	//网易云音乐点歌
-	const bot = info.bot;
-	const event = info.event;
-	const gid = event.group_id;
-
-	let words = event.raw_message.trim().split(' ').filter(e => e != '');
-
-	if (words[0] != '网易云点歌') return;
-
-	if (isNaN(Number(words[1]))) return;
-	bot.sendGroupMsg(gid, cqcode.music('163', words[1]));
-}
-
-function listener_4(info)
+function listener_4(event)
 {	//@message.group.normal
 	//send指令
-	const bot = info.bot;
-	const event = info.event;
-	const msg = info.msg;
-
-	var index = msg.cmd.map(e => e.cmd).indexOf('send');
-	if (index == -1) return;
-
-	const gid = event.group_id;
-
-	var argv = msg.cmd[index].argv;
-	bot.sendGroupMsg(gid, argv.join(' '));
-}
-
-function listener_5(info)
-{	//@message
-	//help指令
-	const bot = info.bot;
-	const event = info.event;
-	const msg = info.msg;
-
-	var index = msg.cmd.map(e => e.cmd).indexOf('help');
-	if (index == -1) return;
-
 	const gid = event.group_id;
 	const uid = event.user_id;
+
+	if (event.raw_message[0] != '.') return;
+	let raw_cmd = event.raw_message.slice(1);
+
+	parser.execute(raw_cmd, parser.getdesctemp('send'), (subcmds, argeles, freewords) => {
+		this.sendGroupMsg(gid, freewords.map((e) => e.word).join(' '));
+	}).catch((e) => {
+		this.error('plugin.default.send:', e.message);
+	});
+}
+
+function listener_5(event)
+{	//@message
+	//help指令
+	const gid = event.group_id;
+	const uid = event.user_id;
+
+	if (event.raw_message[0] != '.') return;
+	let raw_cmd = event.raw_message.slice(1);
 
 	const helpinfo =
 		'梓言的n种使用方法（害羞o(*////▽////*)q\n' +
@@ -131,33 +107,33 @@ function listener_5(info)
 		'\t猜拳: 就是猜拳啦~\n' +
 		'\t骰子: 就是投骰子啦~';
 
-	if (gid == null)
-	{
-		bot.sendPrivateMsg(uid, helpinfo);
-	} else
-	{
-		bot.sendGroupMsg(gid, helpinfo);
-	}
+	parser.execute(raw_cmd, parser.getdesctemp('help'), (subcmds, argeles, freewords) => {
+		this.sendGroupMsg(gid, freewords.map((e) => e.word).join(' '));
+		this.sendMsg(helpinfo, { gid: gid, uid: uid });
+	}).catch((e) => {
+		this.error('plugin.default.help:', e.message);
+	});
 }
 
-function listener_6(info)
+function listener_6(event)
 {	//@message.group.normal
 	//sendpulse指令
-	const bot = info.bot;
-	const event = info.event;
-	const msg = info.msg;
-
-	var index = msg.cmd.map(e => e.cmd).indexOf('sendpulse');
-	if (index == -1) return;
-
 	const gid = event.group_id;
-	const uid = event.sender.user_id;
-	if (uid == event.self_id) bot.withdrawMessage(event.message_id);
+	const uid = event.user_id;
 
-	var argv = msg.cmd[index].argv;
+	if (event.raw_message[0] != '.') return;
+	let raw_cmd = event.raw_message.slice(1);
 
-	bot.sendGroupMsg(gid, argv.join(' ')).then((response) => {
-		bot.withdrawMessage(response.data.message_id);
+	parser.execute(raw_cmd, parser.getdesctemp('sendpulse'), (subcmds, argeles, freewords) => {
+		if (this.uin == uid)
+		{
+			this.withdrawMessage(event.message_id);
+		}
+		this.sendGroupMsg(gid, freewords.map((e) => e.word).join(' ')).then((resp) => {
+			this.withdrawMessage(resp.data.message_id);
+		});
+	}).catch((e) => {
+		this.error('plugin.default.sendpulse:', e.message);
 	});
 }
 
@@ -177,11 +153,7 @@ const description =
 		event: 'message.group.normal',
 		subname: 'dice',
 		action: listener_2
-	},/*{
-		event: 'message.group.normal',
-		subname: 'cloudease-song',
-		action: listener_3
-	},*/{
+	},{
 		event: 'message.group.normal',
 		subname: 'cmd-send',
 		action: listener_4

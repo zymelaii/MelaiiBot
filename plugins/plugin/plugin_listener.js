@@ -9,108 +9,98 @@ const cmdDesc = parser.fixdesc(
 	loadFileAsJson(path.resolve(__dirname, 'plugin.json'))
 );
 
-function performRegister(info, registerData)
+function performRegister(event, registerData)
 {
-	const bot   = info.bot;
-	const event = info.event;
-	const gid   = event.group_id;
-	const uid   = event.user_id;
+	const gid = event.group_id;
+	const uid = event.user_id;
 
 	const plugin_name = registerData.plugin;
-	let resp = plugin.register(bot, plugin_name);
+	let resp = plugin.register(this, plugin_name);
 	let status = resp.status_code;
 
 	if (status == 0)
 	{
-		bot.sendMsg('插件安装成功！', { gid: gid, uid: uid });
-		bot.mark(`插件 ${plugin_name} 已加载`);
+		this.sendMsg('插件安装成功！', { gid: gid, uid: uid });
+		this.mark(`插件 ${plugin_name} 已加载`);
 	} else
 	{
-		if (status == 1) bot.sendMsg('插件已安装！', { gid: gid, uid: uid });
-		else bot.sendMsg('插件安装失败！', { gid: gid, uid: uid });
-		if (status != -4) bot.warn(`MelaiiBot@plugins.plugin: ${resp.errmsg}`);
-		else bot.warn(`插件 ${plugin_name} 加载失败（${resp.exception.message}）`);
+		if (status == 1) this.sendMsg('插件已安装！', { gid: gid, uid: uid });
+		else this.sendMsg('插件安装失败！', { gid: gid, uid: uid });
+		if (status != -4) this.warn(`MelaiiBot@plugins.plugin: ${resp.errmsg}`);
+		else this.warn(`插件 ${plugin_name} 加载失败（${resp.exception.message}）`);
 	}
 }
 
-function performRemove(info, removeData)
+function performRemove(event, removeData)
 {
-	const bot   = info.bot;
-	const event = info.event;
-	const gid   = event.group_id;
-	const uid   = event.user_id;
+	const gid = event.group_id;
+	const uid = event.user_id;
 
-	if (bot.getShared('plugin').admin != uid)
+	if (this.getShared('plugin').admin != uid)
 	{
-		bot.sendMsg('权限不足！', { gid: gid, uid: uid });
+		this.sendMsg('权限不足！', { gid: gid, uid: uid });
 		return;
 	}
 
 	const plugin_name = removeData.plugin;
-	let resp = plugin.unregister(bot, plugin_name);
+	let resp = plugin.unregister(this, plugin_name);
 	let status = resp.status_code;
 
 	if (status == 0)
 	{
-		bot.sendMsg('插件卸载成功！', { gid: gid, uid: uid });
-		bot.mark(`插件 ${plugin_name} 已卸载`);
+		this.sendMsg('插件卸载成功！', { gid: gid, uid: uid });
+		this.mark(`插件 ${plugin_name} 已卸载`);
 	} else
 	{
-		if (status == 1) bot.sendMsg('插件未安装！', { gid: gid, uid: uid });
-		else if (status == -3) bot.sendMsg('无权卸载插件！', { gid: gid, uid: uid });
-		else bot.sendMsg('插件卸载失败！', { gid: gid, uid: uid });
-		bot.warn(`插件 ${plugin_name} 卸载失败（${resp.errmsg}）`);
+		if (status == 1) this.sendMsg('插件未安装！', { gid: gid, uid: uid });
+		else if (status == -3) this.sendMsg('无权卸载插件！', { gid: gid, uid: uid });
+		else this.sendMsg('插件卸载失败！', { gid: gid, uid: uid });
+		this.warn(`插件 ${plugin_name} 卸载失败（${resp.errmsg}）`);
 	}
 }
 
-function performReload(info, reloadData)
+function performReload(event, reloadData)
 {
-	const bot   = info.bot;
-	const event = info.event;
-	const gid   = event.group_id;
-	const uid   = event.user_id;
+	const gid = event.group_id;
+	const uid = event.user_id;
 
-	if (bot.getShared('plugin').admin != uid)
+	if (this.getShared('plugin').admin != uid)
 	{
-		bot.sendMsg('权限不足！', { gid: gid, uid: uid });
+		this.sendMsg('权限不足！', { gid: gid, uid: uid });
 		return;
 	}
 
 	const plugin_name = reloadData.plugin;
-	let resp = plugin.register(bot, plugin_name, true);
+	let resp = plugin.register(this, plugin_name, true);
 	let status = resp.status_code;
 
 	if (status == 0)
 	{
-		bot.sendMsg('插件重载成功！', { gid: gid, uid: uid });
-		bot.mark(`插件 ${plugin_name} 已重载`);
+		this.sendMsg('插件重载成功！', { gid: gid, uid: uid });
+		this.mark(`插件 ${plugin_name} 已重载`);
 	} else
 	{
-		bot.sendMsg('插件重载失败！', { gid: gid, uid: uid });
-		if (status != -4) bot.mark(`MelaiiBot@plugins.plugin: ${resp.errmsg}`);
-		else bot.warn(`插件 ${plugin_name} 重载失败（${resp.exception.message}）`);
+		this.sendMsg('插件重载失败！', { gid: gid, uid: uid });
+		if (status != -4) this.mark(`MelaiiBot@plugins.plugin: ${resp.errmsg}`);
+		else this.warn(`插件 ${plugin_name} 重载失败（${resp.exception.message}）`);
 	}
 }
 
-function performList(info)
+function performList(event)
 {
-	const bot   = info.bot;
-	const event = info.event;
-	const gid   = event.group_id;
-	const uid   = event.user_id;
+	const gid = event.group_id;
+	const uid = event.user_id;
 
-	bot.sendMsg(`当前已加载插件：\n${bot.plugins.join('\n')}`, { gid: gid, uid: uid });
+	this.sendMsg(`当前已加载插件：\n${this.plugins.join('\n')}`, { gid: gid, uid: uid });
 }
 
-function setup(bot, field)
+function setup(field)
 {
 	field.admin = 1745096608;
 }
 
-function listener_0(info)
+function listener_0(event)
 {
-	let   bot   = info.bot;
-	const event = info.event;
 	const gid   = event?.group_id;
 	const uid   = event?.user_id;
 
@@ -121,26 +111,26 @@ function listener_0(info)
 		switch (subcmd.keyword)
 		{
 			case 'register':
-				performRegister(info, {
+				performRegister.call(this, event, {
 					plugin: subcmd.args._ ? subcmd.args._[0] : null
 				});
 			break;
 			case 'remove':
-				performRemove(info, {
+				performRemove.call(this, event, {
 					plugin: subcmd.args._ ? subcmd.args._[0] : null
 				});
 			break;
 			case 'reload':
-				performReload(info, {
+				performReload.call(this, event, {
 					plugin: subcmd.args._ ? subcmd.args._[0] : null
 				});
 			break;
 			case 'list':
-				performList(info);
+				performList.call(this, event);
 			break;
 		}
 	}).catch((e) => {
-		bot.error(`plugin.plugin: ${e.message}`);
+		this.error(`plugin.plugin: ${e.message}`);
 	});
 }
 

@@ -1,0 +1,39 @@
+{
+    "style": "gnu",
+    "cmd": "msgopt",
+    "subcmd": [],
+    "options": {
+        "keywords": [
+            {
+                "id": 0,
+                "op": {
+                    "short": null,
+                    "long": "no-cutdetails"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "显示截断消息"
+            },
+            {
+                "id": 1,
+                "op": {
+                    "short": null,
+                    "long": "show-cutdetails"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "不显示截断消息"
+            }
+        ],
+        "conflicts": {}
+    },
+    "config": {
+        "ignore": {
+            "unknown": true,
+            "bad_option": true,
+            "bad_collect": true,
+            "case": true,
+            "repeated": false
+        }
+    }
+}

@@ -5,21 +5,18 @@ const { getPhase, getRandomPhase } = require('./phase');
 const { rpStyles } = require('./rpstyle');
 const { segment, cqcode } = require("oicq");
 const path = require('path');
+const parser = require('../../lib/parser');
 const { getRandom } = require('./jrrp');
 
-var selectedRpStyle = 'normal';
-const toRpStyle = (num) =>
+function setup(field)
 {
-	return rpStyles[selectedRpStyle](num);
-};
+	field.selectedRpStyle = 'normal';
+	field.toRpStyle = (num) => rpStyles[field.selectedRpStyle](num);
+}
 
-function listener_0(info)
+function listener_0(event)
 {	//@message.group.normal
 	//本月人品
-
-	const bot = info.bot;
-	const event = info.event;
-
 	if (event.raw_message != '本月人品') return;
 
 	const gid = event.group_id;
@@ -61,6 +58,8 @@ function listener_0(info)
 
 	bestdays  = bestdays.filter((e) => e >= day);
 	worstdays = worstdays.filter((e) => e >= day);
+
+	const toRpStyle = this.getShared('jrrp').toRpStyle;
 
 	let text = cqcode.at(uid);
 	switch (rps[day - 1])
@@ -112,74 +111,75 @@ function listener_0(info)
 		break;
 	}
 
-	bot.sendGroupMsg(gid, text);
+	this.sendGroupMsg(gid, text);
 }
 
-function listener_1(info)
+function listener_1(event)
 {	//@message.group.normal
 	//本月人品参数管理
-
-	const bot = info.bot;
-	const event = info.event;
-	const msg = info.msg;
-
-	var index = msg.cmd.map(e => e.cmd).indexOf('jmrp');
-	if (index == -1) return;	
-
-	const argv = msg.cmd[index].argv;
-	if (argv.length != 1) return;
-
 	const gid = event.group_id;
-	const uid = event.sender.user_id;
+	const uid = event.user_id;
 
-	const newStyle = argv[0];
-	for (let key in rpStyles)
-	{
-		if (newStyle == key)
+	if (event.raw_message[0] != '.') return;
+	let raw_cmd = event.raw_message.slice(1);
+
+	parser.execute(raw_cmd, parser.getdesctemp('jmrp'), (subcmds, argeles, freewords) => {
+		let field = this.getShared('jrrp');
+		let possibleStyle = freewords.map((e) => e.word);
+		for (let i = 0; i < possibleStyle; ++i)
 		{
-			selectedRpStyle = newStyle;
-			return;
+			let style = possibleStyle[i];
+			for (let key in rpStyles)
+			{
+				if (style == key)
+				{
+					field.selectedRpStyle = style;
+					return;
+				}
+			}
 		}
-	}
+	}).catch((e) => {
+		this.error('plugin.jrrp.jmrp-man:', e.message);
+	});
 }
 
-function listener_2(info)
+function listener_2(event)
 {	//@message.group.normal
 	//今日卦象
-
-	const bot   = info.bot;
-	const event = info.event;
 	const gid   = event.group_id;
 	const uid   = event.user_id;
 
 	if (event.raw_message[0] != '.') return;
 	const raw_cmd = event.raw_message.slice(1);
 
-	if (raw_cmd != 'jrphase') return;
+	parser.execute(raw_cmd, parser.getdesctemp('jrphase'), (subcmds, argeles, freewords) => {
+		const date  = new Date();
+		const seed = uid + [date.getFullYear(),
+			date.getMonth() + 1, date.getDate()].join('/');
+		const phaseIndex = getRandom(seed, 1, 64);
+		const phase = getPhase(phaseIndex);
+	
+		if (!phase)
+		{
+			console.error('[ERROR] plugin.jrrp.jrphase: unknown error');
+			this.sendGroupMsg(gid, '嗯~本姑娘今天状态不好，算不出卦了……才不是骗人的呢！');
+			return;
+		}
+	
+		const phaseReply = cqcode.at(uid) + cqcode.image(
+			path.resolve(__dirname, `assets/phases/phase-${phaseIndex}.gif`))
+			+ `今日的卦象为${phase.phase}\n${phase.description}`;
 
-	const date  = new Date();
-	const seed = uid + [date.getFullYear(),
-		date.getMonth() + 1, date.getDate()].join('/');
-
-	const phaseIndex = getRandom(seed, 1, 64);
-	const phase = getPhase(phaseIndex);
-	if (!phase)
-	{
-		console.error('[ERROR] plugin.jrrp.jrphase: unknown error');
-		bot.sendGroupMsg(gid, '嗯~本姑娘今天状态不好，算不出卦了……才不是骗人的呢！');
-		return;
-	}
-
-	const phaseReply = cqcode.at(uid) + cqcode.image(
-		path.resolve(__dirname, `assets/phases/phase-${phaseIndex}.gif`))
-		+ `今日的卦象为${phase.phase}\n${phase.description}`;
-
-	bot.sendGroupMsg(gid, phaseReply);
+		this.sendGroupMsg(gid, phaseReply);
+	}).catch((e) => {
+		this.error('plugin.jrrp.jrphase:', e.message);
+	});
 }
 
 const description =
 {
 	plugin: 'jrrp',
+	setup: setup,
 	actions: [{
 		event: 'message.group.normal',
 		subname: 'jmrp-exec',

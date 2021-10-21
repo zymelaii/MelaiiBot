@@ -15,29 +15,28 @@ const cmdDesc = parser.json2desc(
 	).toString()
 );
 
-async function performPlay(info, playData)
+async function performPlay(event, playData)
 {
-	const bot = info.bot;
-	const gid = info.event.group_id;
+	const gid = event.group_id;
 
 	let songid = playData.keyword;
 	const isname = playData.isname;
 
 	if (!songid)
 	{
-		bot.sendGroupMsg(gid, '呃啊啊，梓言还猜不到你的心思呢！你想要听什么歌曲呢？');
+		this.sendGroupMsg(gid, '呃啊啊，梓言还猜不到你的心思呢！你想要听什么歌曲呢？');
 		return;
 	}
 
 	if (!isNaN(Number(songid)))
 	{
-		bot.sendGroupMsg(gid, cqcode.music('163', songid));
+		this.sendGroupMsg(gid, cqcode.music('163', songid));
 		return;
 	}
 
 	if (!isname)
 	{
-		bot.sendGroupMsg(gid, '唔呣……' + songid
+		this.sendGroupMsg(gid, '唔呣……' + songid
 			+ '好像不是一首歌的编号呢，那梓言就偷懒咯？d(´ω｀*)');
 		return;
 	}
@@ -52,18 +51,17 @@ async function performPlay(info, playData)
 			if (data.status.code != 0) throw null;
 			if (data.total == 0) throw null;
 			songid = (await selectNBestSongs(name, data.songs, limit))[0].id;
-			bot.sendGroupMsg(gid, cqcode.music('163', songid));
+			this.sendGroupMsg(gid, cqcode.music('163', songid));
 		}).catch((e) => {
 			console.log(`[ERROR] batchSearch: ${e.message}`);
-			bot.sendGroupMsg(gid, `找不到歌曲${name}，播放失败了哇！`);
+			this.sendGroupMsg(gid, `找不到歌曲${name}，播放失败了哇！`);
 		});
 }
 
-async function performSearch(info, queryData)
+async function performSearch(event, queryData)
 {
-	const bot = info.bot;
-	const gid = info.event.group_id;
-	const uid = info.event.sender.user_id;
+	const gid = event.group_id;
+	const uid = event.sender.user_id;
 
 	const songName = queryData.name;
 	var   limit    = queryData.limit ? queryData.limit : 4;
@@ -74,11 +72,11 @@ async function performSearch(info, queryData)
 
 	if (!songName)
 	{
-		bot.sendGroupMsg(gid, '呃啊啊，梓言还猜不到你的心思呢！你想要搜什么歌曲呢？');
+		this.sendGroupMsg(gid, '呃啊啊，梓言还猜不到你的心思呢！你想要搜什么歌曲呢？');
 		return;
 	}
 
-	bot.sendGroupMsg(
+	this.sendGroupMsg(
 		gid, `梓言正在为你整理最火最精准的${limit}首歌曲，请稍等哦！─=≡Σ(((つ•̀ω•́)つ`);
 
 	netease.batchSearch(songName, accept, type).then(async (data) => {
@@ -87,7 +85,7 @@ async function performSearch(info, queryData)
 
 		if (data.status.code != 0)
 		{
-			bot.sendGroupMsg(gid, failed_msg);
+			this.sendGroupMsg(gid, failed_msg);
 			console.log('[WARN] Netease CloudMusic:',
 				'failed searching (' + data.status.message + ')');
 			return;
@@ -101,22 +99,20 @@ async function performSearch(info, queryData)
 		var results = await selectNBestSongs(songName, data.songs, limit);
 		if (!results)
 		{
-			bot.sendGroupMsg(gid, failed_msg);
+			this.sendGroupMsg(gid, failed_msg);
 			return;
 		}
 
 		let text = results.map((e) =>
 			String(e.id).padEnd(12) + e.name + ' - ' + e.artists).join('\n');
 
-		bot.sendGroupMsg(
+		this.sendGroupMsg(
 			gid, cqcode.at(uid)+ ' 你的搜歌结果出炉啦！\n' + text);
 	});
 }
 
-function listener_0(info)
+function listener_0(event)
 {	//@message.group.normal
-	const bot   = info.bot;
-	const event = info.event;
 	const gid   = event.group_id;
 
 	if (event.raw_message[0] != '.') return;
@@ -129,7 +125,7 @@ function listener_0(info)
 	parser.execute(raw_cmd, cmdDesc, async (subcmd, argeles, freewords) => {
 		if (!await netease.isRunning())
 		{
-			bot.sendGroupMsg(gid, rejectReply);
+			this.sendGroupMsg(gid, rejectReply);
 			console.log('[INFO] 网易云音乐接口服务端未启动');
 			return;
 		}
@@ -137,13 +133,13 @@ function listener_0(info)
 		switch (subcmd.keyword)
 		{
 			case 'play':
-				performPlay(info, {
+				performPlay.call(this, event, {
 					keyword: subcmd.args._ ? subcmd.args._[0] : null,
 					isname: argeles.name ? true : false
 				});
 			break;
 			case 'search':
-				performSearch(info, {
+				performSearch.call(this, event, {
 					name:   subcmd.args._  ? subcmd.args._[0]       : null,
 					limit:  argeles.limit  ? argeles.limit.args[0]  : null,
 					accept: argeles.accept ? argeles.accept.args[0] : null
@@ -152,20 +148,20 @@ function listener_0(info)
 			default:
 				if (argeles.help)
 				{
-					bot.sendGroupMsg(gid, parser.compoundHelpInfo(cmdDesc));
+					this.sendGroupMsg(gid, parser.compoundHelpInfo(cmdDesc));
 				} else if (freewords[0] && freewords[0].index == 0)
 				{
-					bot.sendGroupMsg(gid,
+					this.sendGroupMsg(gid,
 						'点歌就点歌，我可不知道`' + freewords[0].word + '`是什么意思呢！');
 				} else
 				{
-					bot.sendGroupMsg(gid, '找梓言，是想要嗨歌吗？');
+					this.sendGroupMsg(gid, '找梓言，是想要嗨歌吗？');
 				}
 			break;
 		}
 	}).catch((e) => {
-		bot.sendGroupMsg(gid, '呃呃，出现火星文了啊！你想要说什么呢？');
-		console.error('[ERROR]', e.message);
+		this.sendGroupMsg(gid, '呃呃，出现火星文了啊！你想要说什么呢？');
+		this.error('plugin.music:', e.message);
 	})
 }
 

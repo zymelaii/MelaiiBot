@@ -141,7 +141,7 @@ async function performView(info, viewData)
 	bot.sendGroupMsg(gid, text);
 }
 
-function setup(bot, field)
+function setup(field)
 {
 	field.Manager = new HBManager;
 }

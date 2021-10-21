@@ -9,100 +9,93 @@ const cmdDesc = parser.fixdesc(
 	loadFileAsJson(path.resolve(__dirname, 'env.json'))
 );
 
-function setup(bot, field)
+function setup(field)
 {
 	field.admin = 1745096608;
 }
 
-function performNew(info, newData)
+function performNew(event, newData)
 {
-	let   bot   = info.bot;
-	const event = info.event;
-	const gid   = event?.group_id;
-	const uid   = event?.user_id;
-	let env = newData.env;
+	const gid = event?.group_id;
+	const uid = event?.user_id;
+	let   env = newData.env;
 
 	if (!env) return;
 
-	if (bot.envs.includes(env))
+	if (this.envs.includes(env))
 	{
-		bot.sendMsg('环境已存在！', { gid: gid, uid:uid });
+		this.sendMsg('环境已存在！', { gid: gid, uid:uid });
 	} else
 	{
-		let old_env = bot.env;
-		bot.switchTo(env, true);
-		if (bot.envs.includes(env))
+		let old_env = this.env;
+		this.switchTo(env, true);
+		if (this.envs.includes(env))
 		{
-			bot.sendMsg(`环境【${env}】创建成功！`, { gid: gid, uid:uid });
+			this.sendMsg(`环境【${env}】创建成功！`, { gid: gid, uid:uid });
 		} else
 		{
-			bot.sendMsg(`环境创建失败！`, { gid: gid, uid:uid });
+			this.sendMsg(`环境创建失败！`, { gid: gid, uid:uid });
 		}
 	}
 }
 
-function performSet(info, setData)
+function performSet(event, setData)
 {
-	let   bot   = info.bot;
-	const event = info.event;
-	const gid   = event?.group_id;
-	const uid   = event?.user_id;
-	let env = setData.env;
+	const gid = event?.group_id;
+	const uid = event?.user_id;
+	let   env = setData.env;
 
 	if (!env)
 	{
-		bot.sendMsg(`${info.event.sender.nickname}，需要换到什么环境呢？`,
+		this.sendMsg(`${event.sender.nickname}，需要换到什么环境呢？`,
 			{ gid: gid, uid:uid });
 		return;
 	}
 
-	if (env == bot.env)
+	if (env == this.env)
 	{
-		bot.sendMsg(`现在已经是【${env}】环境啦~`, { gid: gid, uid:uid });
+		this.sendMsg(`现在已经是【${env}】环境啦~`, { gid: gid, uid:uid });
 		return;
 	}
 
-	if (!bot.envs.includes(env))
+	if (!this.envs.includes(env))
 	{
-		bot.sendMsg(`环境【${env}】不存在！`, { gid: gid, uid:uid });
+		this.sendMsg(`环境【${env}】不存在！`, { gid: gid, uid:uid });
 	} else
 	{
-		bot.switchTo(env);
-		bot.sendMsg(`成功切换到【${env}】环境啦！`, { gid: gid, uid:uid });
+		this.switchTo(env);
+		this.sendMsg(`成功切换到【${env}】环境啦！`, { gid: gid, uid:uid });
 	}
 }
 
-function listener_0(info)
+function listener_0(event)
 {
-	let   bot   = info.bot;
-	const event = info.event;
-	const gid   = event?.group_id;
-	const uid   = event?.user_id;
+	const gid = event?.group_id;
+	const uid = event?.user_id;
 
 	if (event.raw_message[0] != '.') return;
 	let raw_cmd = event.raw_message.slice(1);
 
 	parser.execute(raw_cmd, cmdDesc, async (subcmd, argeles, freewords) => {
-
-		if (uid != bot.getShared('env').admin) return;
+		if (uid != this.getShared('env').admin) return;
 
 		switch (subcmd.keyword)
 		{
 			case 'new':
-				performNew(info, { env: subcmd.args ? subcmd.args._[0] : null });
+				performNew.call(this, event, { env: subcmd.args ? subcmd.args._[0] : null });
 			break;
 			case 'set':
-				performSet(info, { env: subcmd.args ? subcmd.args._[0] : null });
+				performSet.call(this, event, { env: subcmd.args ? subcmd.args._[0] : null });
 			break;
 			case 'list':
-				bot.sendMsg(`环境列表：\n${bot.envs.join('\n')}`, { gid: gid, uid: uid });
+				this.sendMsg(`环境列表：\n${this.envs.join('\n')}`, { gid: gid, uid: uid });
 			break;
 			default:
-				bot.sendMsg(`当前环境：${bot.env}`, { gid: gid, uid:uid });
+				this.sendMsg(`当前环境：${this.env}`, { gid: gid, uid:uid });
 			break;
 		}
 	}).catch((e) => {
-		bot.error('plugin.env:', e.message);
+		this.error('plugin.env:', e.message);
 	});
 }
 
