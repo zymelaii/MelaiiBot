@@ -105,6 +105,8 @@ dist
 # TernJS port file
 .tern-port
 
+
+plugins/nolp/konachan.db.txt
 bin
 data
 melaii.js
