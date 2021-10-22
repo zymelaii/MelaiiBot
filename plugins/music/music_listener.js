@@ -111,18 +111,19 @@ async function performSearch(event, queryData)
 	});
 }
 
-function listener_0(event)
+async function listener_0(event)
 {	//@message.group.normal
-	const gid   = event.group_id;
+	const gid = event.group_id;
 
-	if (event.raw_message[0] != '.') return;
+	if (event.raw_message[0] != '.') return true;
 	const raw_cmd = event.raw_message.slice(1);
 
 	const rejectReply = '这个东西我还没学会，哼！';
 
-	if (event.raw_message == rejectReply) return;
+	if (event.raw_message == rejectReply) return true;
 
-	parser.execute(raw_cmd, cmdDesc, async (subcmd, argeles, freewords) => {
+	return await parser.execute(raw_cmd, cmdDesc,
+	async (subcmd, argeles, freewords) => {
 		if (!await netease.isRunning())
 		{
 			this.sendGroupMsg(gid, rejectReply);
@@ -159,10 +160,12 @@ function listener_0(event)
 				}
 			break;
 		}
+		return false;
 	}).catch((e) => {
 		this.sendGroupMsg(gid, '呃呃，出现火星文了啊！你想要说什么呢？');
 		this.error('plugin.music:', e.message);
-	})
+		return true;
+	}) ?? true;
 }
 
 const description = {

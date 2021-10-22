@@ -35,7 +35,7 @@ function listener_0(event)
 		let pokeCounts = field.pokeCounts;
 
 		if (!(gid in pokeCounts)) pokeCounts[gid] = 0;
-		else if (pokeCounts[gid] == -1) return;
+		else if (pokeCounts[gid] == -1) return true;
 
 		if (++pokeCounts[gid] > 8)
 		{
@@ -48,7 +48,11 @@ function listener_0(event)
 			const pokeWords = field.pokeWords;
 			this.sendGroupMsg(gid, pokeWords[utils.randomInt(0, pokeWords.length - 1)]);
 		}
+
+		return false;
 	}
+
+	return true;
 }
 
 function listener_1(event)
@@ -59,7 +63,10 @@ function listener_1(event)
 	if (event.raw_message == '猜拳')
 	{
 		this.sendGroupMsg(gid, cqcode.rps(Math.floor(Math.random() * 3) + 1));
+		return false;
 	}
+
+	return true;
 }
 
 function listener_2(event)
@@ -70,32 +77,38 @@ function listener_2(event)
 	if (event.raw_message == '骰子')
 	{
 		this.sendGroupMsg(gid, cqcode.dice(Math.floor(Math.random() * 6) + 1));
+		return false;
 	}
+
+	return true;
 }
 
-function listener_4(event)
+async function listener_4(event)
 {	//@message.group.normal
 	//send指令
 	const gid = event.group_id;
 	const uid = event.user_id;
 
-	if (event.raw_message[0] != '.') return;
+	if (event.raw_message[0] != '.') return true;
 	let raw_cmd = event.raw_message.slice(1);
 
-	parser.execute(raw_cmd, parser.getdesctemp('send'), (subcmds, argeles, freewords) => {
+	return await parser.execute(raw_cmd, parser.getdesctemp('send'),
+	(subcmds, argeles, freewords) => {
 		this.sendGroupMsg(gid, freewords.map((e) => e.word).join(' '));
+		return false;
 	}).catch((e) => {
 		this.error('plugin.default.send:', e.message);
-	});
+		return true;
+	}) ?? true;
 }
 
-function listener_5(event)
+async function listener_5(event)
 {	//@message
 	//help指令
 	const gid = event.group_id;
 	const uid = event.user_id;
 
-	if (event.raw_message[0] != '.') return;
+	if (event.raw_message[0] != '.') return true;
 	let raw_cmd = event.raw_message.slice(1);
 
 	const helpinfo =
@@ -107,34 +120,42 @@ function listener_5(event)
 		'\t猜拳: 就是猜拳啦~\n' +
 		'\t骰子: 就是投骰子啦~';
 
-	parser.execute(raw_cmd, parser.getdesctemp('help'), (subcmds, argeles, freewords) => {
+	return await parser.execute(raw_cmd, parser.getdesctemp('help'),
+	(subcmds, argeles, freewords) => {
 		this.sendGroupMsg(gid, freewords.map((e) => e.word).join(' '));
 		this.sendMsg(helpinfo, { gid: gid, uid: uid });
+		return false;
 	}).catch((e) => {
 		this.error('plugin.default.help:', e.message);
-	});
+		return true;
+	}) ?? true;
 }
 
-function listener_6(event)
+async function listener_6(event)
 {	//@message.group.normal
 	//sendpulse指令
 	const gid = event.group_id;
 	const uid = event.user_id;
 
-	if (event.raw_message[0] != '.') return;
+	if (event.raw_message[0] != '.') return true;
 	let raw_cmd = event.raw_message.slice(1);
 
-	parser.execute(raw_cmd, parser.getdesctemp('sendpulse'), (subcmds, argeles, freewords) => {
+	return await parser.execute(raw_cmd, parser.getdesctemp('sendpulse'),
+	async (subcmds, argeles, freewords) => {
 		if (this.uin == uid)
 		{
 			this.withdrawMessage(event.message_id);
 		}
-		this.sendGroupMsg(gid, freewords.map((e) => e.word).join(' ')).then((resp) => {
+		let resp = await this.sendGroupMsg(gid, freewords.map((e) => e.word).join(' '));
+		if (resp != null)
+		{
 			this.withdrawMessage(resp.data.message_id);
-		});
+		}
+		return false;
 	}).catch((e) => {
 		this.error('plugin.default.sendpulse:', e.message);
-	});
+		return true;
+	}) ?? true;
 }
 
 const description =

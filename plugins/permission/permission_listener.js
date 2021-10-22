@@ -11,10 +11,10 @@ const cmdDesc = parser.fixdesc(
 	loadFileAsJson(path.resolve(__dirname, 'permission.json'))
 );
 
+const CONFIG_FILE = path.resolve(__dirname, './assets/.permissions');
+
 function setup(field)
 {	//! 载入权限列表
-	const CONFIG_FILE = '.permissions';
-
 	if (!field.initialized)
 	{
 		field.permissions = loadFileAsJson(CONFIG_FILE);
@@ -69,12 +69,11 @@ function setup(field)
 			}
 		}
 		return ({ 0: true, 1: false })[this_permission.mode] ?? true;
-	});
+	}, 0);
 }
 
 function uninstall()
 {	//! 存档权限列表，卸载权限关卡
-	const CONFIG_FILE = '.permissions';
 	let field = this.getShared('permission');
 	if (field.initialized)
 	{
@@ -85,12 +84,12 @@ function uninstall()
 	}
 }
 
-function performAllow(event)
+function performAllow(event, allowData)
 {
 
 }
 
-function performBan(event)
+function performBan(event, banData)
 {
 
 }
@@ -103,13 +102,32 @@ function listener_0(event)
 	if (event.raw_message[0] != '.') return;
 	const raw_cmd = event.raw_message.slice(1);
 
-	parser.execute(raw_cmd, cmdDesc, (subcmds, argeles, freewords) => {
-		switch (subcmds)
+	parser.execute(raw_cmd, cmdDesc, (subcmd, argeles, freewords) => {
+
+		let plugin = freewords[0]?.word;
+
+		let _uid   = argeles.user  ? argeles.user.args[0]  : null;
+		let _gid   = argeles.group ? argeles.group.args[0] : null;
+		let _role  = argeles.role  ? argeles.role.args[0]  : null;
+
+		if (_uid != null)
 		{
-			case 'allow':
-			break;
-			case 'ban':
-			break;
+			_uid = _uid == '$' ? uid : Number(_uid);
+			if (!isNaN(_uid)) _uid = null;
+		}
+
+		if (_gid != null)
+		{
+			_gid = _gid == '$' ? gid : Number(_gid);
+			if (!isNaN(_gid)) _gid = null;
+		}
+
+		let data = { plugin: plugin, uid: _uid, gid: _gid, role: _role, mode: _mode };
+
+		switch (subcmd.keyword)
+		{
+			case 'allow': performAllow.call(this, event, data); break;
+			case 'ban':   performBan.call(this, event, data);   break;
 			default:
 				if (argeles.help) this.sendMsg(doc.HELP_ALL, { gid: gid, uid: uid });
 			break;

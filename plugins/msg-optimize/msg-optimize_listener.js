@@ -62,12 +62,12 @@ function uninstall()
 	this.delListener('message', '#msg-optimize.strip');
 }
 
-function listener_0(event)
+async function listener_0(event)
 {
-	if (event.raw_message[0] != '.') return;
+	if (event.raw_message[0] != '.') return true;
 	const raw_cmd = event.raw_message.slice(1);
 
-	parser.execute(raw_cmd, cmdDesc, (subcmd, argeles, freewords) => {
+	return await parser.execute(raw_cmd, cmdDesc, (subcmd, argeles, freewords) => {
 		let field = this.getShared('msg-optimize');
 		if (argeles['show-cutdetails'])
 		{
@@ -76,9 +76,11 @@ function listener_0(event)
 		{
 			field.show_details = false;
 		}
+		return false;
 	}).catch((e) => {
 		this.error('plugin.msg-optimize:', e.message);
-	});
+		return false;
+	}) ?? true;
 }
 
 const description =

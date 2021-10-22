@@ -8,14 +8,17 @@ async function listener_0(event)
 {
 	const gid = event.group_id;
 
-	if (event.raw_message[0] != '.') return;
+	if (event.raw_message[0] != '.') return true;
 	const raw_cmd = event.raw_message.slice(1);
 
-	parser.execute(raw_cmd, parser.getdesctemp('nolp'), () => {
-		this.sendGroupMsg(gid, cqcode.image(randomPickKonachan()));
+	return await parser.execute(raw_cmd, parser.getdesctemp('nolp'),
+	() => {
+		this.sendGroupMsg(gid, cqcode.image(randomPickLocal()));
+		return false;
 	}).catch((e) => {
 		this.error(`plugin.nolp: ${e.message}`);
-	});
+		return false;
+	}) ?? true;
 }
 
 const description =

@@ -68,16 +68,17 @@ function performSet(event, setData)
 	}
 }
 
-function listener_0(event)
+async function listener_0(event)
 {
 	const gid = event?.group_id;
 	const uid = event?.user_id;
 
-	if (event.raw_message[0] != '.') return;
+	if (event.raw_message[0] != '.') return true;
 	let raw_cmd = event.raw_message.slice(1);
 
-	parser.execute(raw_cmd, cmdDesc, async (subcmd, argeles, freewords) => {
-		if (uid != this.getShared('env').admin) return;
+	return await parser.execute(raw_cmd, cmdDesc,
+	async (subcmd, argeles, freewords) => {
+		if (uid != this.getShared('env').admin) return false;
 
 		switch (subcmd.keyword)
 		{
@@ -94,9 +95,12 @@ function listener_0(event)
 				this.sendMsg(`当前环境：${this.env}`, { gid: gid, uid:uid });
 			break;
 		}
+
+		return false;
 	}).catch((e) => {
 		this.error('plugin.env:', e.message);
-	});
+		return true;
+	}) ?? true;
 }
 
 const description =

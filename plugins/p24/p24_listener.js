@@ -72,7 +72,7 @@ async function performAnwser(event)
 	const expr   = event.raw_message;
 
 	const p24info = p24.get24GameInfo(gid);
-	if (!p24info) return;
+	if (!p24info) return false;
 
 	if (p24.preGuess24Solution(gid, expr))
 	{
@@ -96,7 +96,11 @@ async function performAnwser(event)
 				p24.remove24Game(gid);
 			}
 		}
+
+		return true;
 	}
+
+	return false
 }
 
 async function performSkip(event)
@@ -119,14 +123,15 @@ async function performSkip(event)
 
 async function listener_0(event)
 {
-	const gid   = event.group_id;
+	const gid = event.group_id;
 
 	const iscmd = event.raw_message[0] == '.';
 	const raw_cmd = event.raw_message.slice(1);
 
 	if (iscmd)
 	{
-		parser.execute(raw_cmd, cmdDesc, async (subcmd, argeles, freewords) => {
+		return await parser.execute(raw_cmd, cmdDesc,
+		async (subcmd, argeles, freewords) => {
 			var target = freewords
 				.map((e) => Number(e.word))
 				.filter((e) => !isNaN(e))[0];
@@ -146,10 +151,14 @@ async function listener_0(event)
 					target: target
 				});
 			}
-		});
+			return false;
+		}).catch((e) => {
+			this.errro('plugin.p24:', e.message);
+			return true;
+		}) ?? true;
 	} else
 	{
-		performAnwser.call(this, event);
+		return !(await performAnwser.call(this, event));
 	}
 }
 

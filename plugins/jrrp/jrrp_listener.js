@@ -17,7 +17,7 @@ function setup(field)
 function listener_0(event)
 {	//@message.group.normal
 	//本月人品
-	if (event.raw_message != '本月人品') return;
+	if (event.raw_message != '本月人品') return true;
 
 	const gid = event.group_id;
 	const uid = event.user_id;
@@ -112,18 +112,21 @@ function listener_0(event)
 	}
 
 	this.sendGroupMsg(gid, text);
+
+	return false;
 }
 
-function listener_1(event)
+async function listener_1(event)
 {	//@message.group.normal
 	//本月人品参数管理
 	const gid = event.group_id;
 	const uid = event.user_id;
 
-	if (event.raw_message[0] != '.') return;
+	if (event.raw_message[0] != '.') return true;
 	let raw_cmd = event.raw_message.slice(1);
 
-	parser.execute(raw_cmd, parser.getdesctemp('jmrp'), (subcmds, argeles, freewords) => {
+	return await parser.execute(raw_cmd, parser.getdesctemp('jmrp'),
+	(subcmds, argeles, freewords) => {
 		let field = this.getShared('jrrp');
 		let possibleStyle = freewords.map((e) => e.word);
 		for (let i = 0; i < possibleStyle; ++i)
@@ -138,21 +141,24 @@ function listener_1(event)
 				}
 			}
 		}
+		return false;
 	}).catch((e) => {
 		this.error('plugin.jrrp.jmrp-man:', e.message);
-	});
+		return true;
+	}) ?? true;
 }
 
-function listener_2(event)
+async function listener_2(event)
 {	//@message.group.normal
 	//今日卦象
 	const gid   = event.group_id;
 	const uid   = event.user_id;
 
-	if (event.raw_message[0] != '.') return;
+	if (event.raw_message[0] != '.') return true;
 	const raw_cmd = event.raw_message.slice(1);
 
-	parser.execute(raw_cmd, parser.getdesctemp('jrphase'), (subcmds, argeles, freewords) => {
+	return await parser.execute(raw_cmd, parser.getdesctemp('jrphase'),
+	(subcmds, argeles, freewords) => {
 		const date  = new Date();
 		const seed = uid + [date.getFullYear(),
 			date.getMonth() + 1, date.getDate()].join('/');
@@ -171,9 +177,11 @@ function listener_2(event)
 			+ `今日的卦象为${phase.phase}\n${phase.description}`;
 
 		this.sendGroupMsg(gid, phaseReply);
+		return false;
 	}).catch((e) => {
 		this.error('plugin.jrrp.jrphase:', e.message);
-	});
+		return true;
+	}) ?? true;
 }
 
 const description =

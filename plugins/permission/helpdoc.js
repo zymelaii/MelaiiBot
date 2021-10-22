@@ -1,7 +1,7 @@
 "use strict";
 
-HELP_ALL =
-`Usage: .permission <allow|ban> <Plugin> [Options]
+const HELP_ALL =
+`Usage: .permission <allow|ban> <Plugin>[.<SubPlugin>] [Options]
 Intro: 权限管理
 SubCommand:
     allow: 赋予对象权限

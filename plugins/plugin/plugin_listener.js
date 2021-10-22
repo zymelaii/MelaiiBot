@@ -67,7 +67,6 @@ function performReload(event, reloadData)
 	if (this.getShared('plugin').admin != uid)
 	{
 		this.sendMsg('权限不足！', { gid: gid, uid: uid });
-		return;
 	}
 
 	const plugin_name = reloadData.plugin;
@@ -99,15 +98,16 @@ function setup(field)
 	field.admin = 1745096608;
 }
 
-function listener_0(event)
+async function listener_0(event)
 {
-	const gid   = event?.group_id;
-	const uid   = event?.user_id;
+	const gid = event?.group_id;
+	const uid = event?.user_id;
 
-	if (event.raw_message[0] != '.') return;
+	if (event.raw_message[0] != '.') return true;
 	let raw_cmd = event.raw_message.slice(1);
 
-	parser.execute(raw_cmd, cmdDesc, async (subcmd, argeles, freewords) => {
+	return await parser.execute(raw_cmd, cmdDesc,
+	async (subcmd, argeles, freewords) => {
 		switch (subcmd.keyword)
 		{
 			case 'register':
@@ -129,9 +129,11 @@ function listener_0(event)
 				performList.call(this, event);
 			break;
 		}
+		return false;
 	}).catch((e) => {
 		this.error(`plugin.plugin: ${e.message}`);
-	});
+		return true;
+	}) ?? true;
 }
 
 const description =

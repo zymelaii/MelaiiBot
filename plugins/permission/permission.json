@@ -42,7 +42,7 @@
                     "long": "whitelist"
                 },
                 "collect": 0,
-                "check": "(e) => true",
+                "check": "() => true",
                 "help": "启用白名单"
             },
             {
@@ -52,8 +52,28 @@
                     "long": "blacklist"
                 },
                 "collect": 0,
-                "check": "(e) => true",
+                "check": "() => true",
                 "help": "启用黑名单"
+            },
+            {
+                "id": 4,
+                "op": {
+                    "short": "h",
+                    "long": "help"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "显示帮助信息"
+            },
+            {
+                "id": 5,
+                "op": {
+                    "short": "r",
+                    "long": "role"
+                },
+                "collect": 1,
+                "check": "(e) => ['member', 'admin', 'owner'].includes(e)",
+                "help": "指定对象的身份"
             }
         ],
         "conflicts": {}

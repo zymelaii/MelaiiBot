@@ -144,7 +144,7 @@ function get24GameSolution(gid)
 	let game = p24_games[gid];
 	if (game == null) return [];
 
-	return calc24(game.target, game.numbers).slice(0, 8);
+	return calc24(game.target, game.numbers).slice(0, 4);
 }
 
 module.exports =
