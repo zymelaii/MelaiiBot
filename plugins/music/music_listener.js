@@ -128,7 +128,7 @@ async function listener_0(event)
 		{
 			this.sendGroupMsg(gid, rejectReply);
 			console.log('[INFO] 网易云音乐接口服务端未启动');
-			return;
+			return false;
 		}
 
 		switch (subcmd.keyword)

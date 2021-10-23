@@ -17,7 +17,7 @@ async function listener_0(event)
 		return false;
 	}).catch((e) => {
 		this.error(`plugin.nolp: ${e.message}`);
-		return false;
+		return true;
 	}) ?? true;
 }
 
