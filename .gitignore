@@ -107,6 +107,7 @@ dist
 
 
 plugins/nolp/konachan.db.txt
+plugins/nolp/cache/*
 bin
 data
 melaii.js
