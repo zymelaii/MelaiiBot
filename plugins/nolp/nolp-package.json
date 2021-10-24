@@ -1,0 +1,45 @@
+{
+    "style": "gnu",
+    "cmd": "nolp-package",
+    "subcmd": [
+        {
+            "keyword": "list",
+            "collect": 0,
+            "accept": "word"
+        },
+        {
+            "keyword": "create",
+            "collect": 1,
+            "accept": "word"
+        },
+        {
+            "keyword": "push",
+            "collect": 1,
+            "accept": "word"
+        }
+    ],
+    "options": {
+        "keywords": [
+            {
+                "id": 0,
+                "op": {
+                    "short": "h",
+                    "long": "help"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "显示帮助信息"
+            }
+        ],
+        "conflicts": {}
+    },
+    "config": {
+        "ignore": {
+            "unknown": true,
+            "bad_option": false,
+            "bad_collect": true,
+            "case": true,
+            "repeated": false
+        }
+    }
+}

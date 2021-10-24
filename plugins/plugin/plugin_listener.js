@@ -26,8 +26,14 @@ function performRegister(event, registerData)
 	{
 		if (status == 1) this.sendMsg('插件已安装！', { gid: gid, uid: uid });
 		else this.sendMsg('插件安装失败！', { gid: gid, uid: uid });
-		if (status != -4) this.warn(`MelaiiBot@plugins.plugin: ${resp.errmsg}`);
-		else this.warn(`插件 ${plugin_name} 加载失败（${resp.exception.message}）`);
+		if (status != -4)
+		{
+			this.mark(`MelaiiBot@plugins.plugin: ${resp.errmsg}`);
+		} else
+		{
+			this.warn(`插件 ${plugin_name} 加载失败（${resp.exception.message}）`,
+				`\n${resp.exception.stack}\n`);
+		}
 	}
 }
 
@@ -80,8 +86,14 @@ function performReload(event, reloadData)
 	} else
 	{
 		this.sendMsg('插件重载失败！', { gid: gid, uid: uid });
-		if (status != -4) this.mark(`MelaiiBot@plugins.plugin: ${resp.errmsg}`);
-		else this.warn(`插件 ${plugin_name} 重载失败（${resp.exception.message}）`);
+		if (status != -4)
+		{
+			this.mark(`MelaiiBot@plugins.plugin: ${resp.errmsg}`);
+		} else
+		{
+			this.warn(`插件 ${plugin_name} 重载失败（${resp.exception.message}）`,
+				`\n${resp.exception.stack}\n`);
+		}
 	}
 }
 

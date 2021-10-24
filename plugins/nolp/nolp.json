@@ -1,0 +1,45 @@
+{
+    "style": "gnu",
+    "cmd": "nolp",
+    "subcmd": [
+        {
+            "keyword": "select",
+            "collect": 1,
+            "accept": "word"
+        }
+    ],
+    "options": {
+        "keywords": [
+            {
+                "id": 0,
+                "op": {
+                    "short": "h",
+                    "long": "help"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "显示帮助信息"
+            },
+            {
+                "id": 1,
+                "op": {
+                    "short": "m",
+                    "long": "mode"
+                },
+                "collect": 1,
+                "check": "() => true",
+                "help": "设置自定义标签的包含模式"
+            }
+        ],
+        "conflicts": {}
+    },
+    "config": {
+        "ignore": {
+            "unknown": true,
+            "bad_option": false,
+            "bad_collect": true,
+            "case": true,
+            "repeated": false
+        }
+    }
+}

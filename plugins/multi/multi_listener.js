@@ -13,10 +13,11 @@ async function listener_0(event)
 
 	return await parser.execute(raw_cmd, parser.getdesctemp('multi'),
 	(subcmd, argeles, freewords) => {
+		let this_event = `message.${event.message_type}.${event.sub_type}`;
 		freewords.forEach((e) => {
-			let _event = clone(event);
-			_event.raw_message = e.word;
-			this.emit('message', _event);
+			let eventData = clone(event);
+			eventData.raw_message = e.word;
+			this.emit(this_event, eventData);
 		});
 		return false;
 	}).catch((e) => {
