@@ -93,8 +93,8 @@ async function listener_4(event)
 	let raw_cmd = event.raw_message.slice(1);
 
 	return await parser.execute(raw_cmd, parser.getdesctemp('send'),
-	(subcmds, argeles, freewords) => {
-		this.sendGroupMsg(gid, freewords.map((e) => e.word).join(' '));
+	async (subcmds, argeles, freewords) => {
+		await this.sendGroupMsg(gid, freewords.map((e) => e.word).join(' '));
 		return false;
 	}).catch((e) => {
 		this.error('plugin.default.send:', e.message);

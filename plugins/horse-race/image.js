@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const trueTo256 = require('../../lib/trueTo256');
+const trueTo256 = require('./trueTo256');
 const Jimp = require('jimp');
 const { GifFrame, GifUtil } = require('gifwrap');
 

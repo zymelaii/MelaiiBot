@@ -105,9 +105,16 @@ dist
 # TernJS port file
 .tern-port
 
+# non-core extensions
+plugins/default/
+plugins/p24/
+plugins/music/
+plugins/nolp/
+plugins/musicgen/
+plugins/puzzle/
+plugins/hush-battle/
+plugins/msg-optimize/
 
-plugins/nolp/konachan.db.txt
-plugins/nolp/cache/*
 bin
 data
 melaii.js

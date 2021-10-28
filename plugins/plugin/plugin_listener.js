@@ -14,6 +14,12 @@ function performRegister(event, registerData)
 	const gid = event.group_id;
 	const uid = event.user_id;
 
+	if (this.getShared('plugin').admin != uid)
+	{
+		this.sendMsg('权限不足！', { gid: gid, uid: uid });
+		return;
+	}
+
 	const plugin_name = registerData.plugin;
 	let resp = plugin.register(this, plugin_name);
 	let status = resp.status_code;
@@ -73,6 +79,7 @@ function performReload(event, reloadData)
 	if (this.getShared('plugin').admin != uid)
 	{
 		this.sendMsg('权限不足！', { gid: gid, uid: uid });
+		return;
 	}
 
 	const plugin_name = reloadData.plugin;
@@ -143,7 +150,7 @@ async function listener_0(event)
 		}
 		return false;
 	}).catch((e) => {
-		this.error(`plugin.plugin: ${e.message}`);
+		this.error(`plugin.plugin: ${e.message}\n`, e.stack);
 		return true;
 	}) ?? true;
 }

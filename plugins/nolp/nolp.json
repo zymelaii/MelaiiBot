@@ -3,8 +3,18 @@
     "cmd": "nolp",
     "subcmd": [
         {
+            "keyword": "help",
+            "collect": 0,
+            "accept": "word"
+        },
+        {
+            "keyword": "query",
+            "collect": 0,
+            "accept": "word"
+        },
+        {
             "keyword": "select",
-            "collect": 1,
+            "collect": 0,
             "accept": "word"
         }
     ],
@@ -29,6 +39,26 @@
                 "collect": 1,
                 "check": "() => true",
                 "help": "设置自定义标签的包含模式"
+            },
+            {
+                "id": 2,
+                "op": {
+                    "short": "c",
+                    "long": "check"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "决定查询子命令是否检查标签存在性（默认）"
+            },
+            {
+                "id": 3,
+                "op": {
+                    "short": "s",
+                    "long": "search"
+                },
+                "collect": 0,
+                "check": "() => true",
+                "help": "决定查询子命令是否匹配相似标签（至多3条）"
             }
         ],
         "conflicts": {}

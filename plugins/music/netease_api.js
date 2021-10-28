@@ -1,6 +1,5 @@
 "use strict"
 
-const request = require('sync-request');
 const { asyncRequest } = require('../../lib/utils');
 const { exec } = require('child_process');
 const path = require('path');

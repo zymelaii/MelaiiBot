@@ -10,47 +10,30 @@ const https = require('https');
 // https.globalAgent.keepAlive = true;
 // https.globalAgent.maxSockets = 8;
 
-const FN_KONACHANDB = path.resolve(__dirname, './konachan.db.txt');
+const FN_KONACHANDB = path.resolve(__dirname, './data/konachan.db.txt');
 
-async function randomPickKonachan(whitetags = [], blacktags = [])
+/// 统计标签种类与数目
+async function scanTags()
 {
-	let start = randomInt(0, 10/*240000*/); //! 确定起始行
 	const rl = readline.createInterface({
 		input: fs.createReadStream(FN_KONACHANDB)
 	});
 
-	let lineIndex = 0, tag = null;
+	let statistics = {};
+
 	for await (const line of rl)
 	{
-		if (++lineIndex < start) continue;
-
-		tag = JSON.parse(line);
-		let done = true;
-		for (let i in tag.tags)
-		{
-			if (blacktags.includes(tag.tags[i]))
+		let tag = JSON.parse(line);
+		tag.tags.forEach((e) => {
+			if (!statistics[e])
 			{
-				done = false;
-				tag = null;
-				break;
+				statistics[e] = 0;
 			}
-		}
-		if (!done) continue;
-		done = false;
-		for (let i in whitetags)
-		{	//! 若白名单不存在，则忽略
-			//! 否则只要存在一条，即获取
-			if (tag.tags.includes(whitetags[i]))
-			{
-				done = true;
-				break;
-			}
-		}
-		if (done || whitetags.length == 0) break;
+			++statistics[e];
+		});
 	}
-	rl.close();
 
-	return tag;
+	return statistics;	
 }
 
 function checkTag(tag, tagsdoc)
@@ -122,14 +105,35 @@ function checkTag(tag, tagsdoc)
 	return true;
 }
 
-async function pickKonachanByTags(tagsdocs)
+/// 获取指定标签的图片数量
+async function countTags(tagsdocs)
 {
-	let fnsize = path.resolve(__dirname, `./${tagsdocs.slice(-1)[0].description}.size`);
-	let max_tags_count = 10000;
-	if (fs.existsSync(fnsize))
+	const rl = readline.createInterface({
+		input: fs.createReadStream(FN_KONACHANDB)
+	});
+
+	let collect = 0;
+	for await (const line of rl)
 	{
-		max_tags_count = Number(fs.readFileSync(fnsize).toString());
+		let tag = JSON.parse(line), done = true;
+		for (let i in tagsdocs)
+		{
+			if (!checkTag(tag, tagsdocs[i]))
+			{
+				done = false;
+				break;
+			}
+		}
+
+		if (done) ++collect;
 	}
+
+	return collect;
+}
+
+async function pickKonachanByTags(tagsdocs, imax = null)
+{
+	let max_tags_count = !isNaN(imax) && Number(imax) > 0 ? Number(imax) : 10000;
 	let selectAt = randomInt(0, max_tags_count);
 
 	const rl = readline.createInterface({
@@ -166,74 +170,59 @@ async function pickKonachanByTags(tagsdocs)
 		}
 	}
 
-	if (collect > 0 && tag == null)
-	{
-		writeFileSync(fnsize, collect.toString());
-	}
-
 	rl.close();
 	return tag;
 }
 
 /// @param: type: 'origin'|'sample'|'preview'
-function parseKonachanImageTag2CHSUrl(tag, type = 'sample')
+function tag2urls(tag, type = 'sample')
 {
 	const uid    = tag.uid;
 	const id     = tag.id;
 	const format = tag.format;
 	const tags   = tag.tags;
 
-	let src_url, url;
+	let src_url, urls = [];
 	switch (type)
 	{
 		case 'origin':
 			src_url = `https://konacha1n.net/image/${uid}/Konachan.com - ${id} ${tags.join(' ')}.${format}`;
 			src_url = Buffer.from(encodeURI(src_url)).toString('base64');
-			url = 'http://konachan.zju.link/konachan_download_static/' + src_url;
-			return url;
+			urls.push('http://konachan.zju.link/konachan_download_static/' + src_url);
+			return urls;
 		break;
 		case 'sample':
-			src_url = `https://konachan.net/sample/${uid}/Konachan.com - ${id} sample.jpg`;
-			url = encodeURI(src_url);
-			return url;
+			urls.push(`sample/${uid}/Konachan.com - ${id} sample.jpg`);
+			urls.push(`jpeg/${uid}/Konachan.com - ${id} ${tags.join(' ')}.jpg`);
+			urls = urls.map((e) => encodeURI(`https://konachan.net/${e}`));
+			return urls;
 		break;
 		case 'preview':
 			src_url = `https://konachan.net/data/preview/${uid.slice(0, 2)}/${uid.slice(2, 4)}/${uid}.jpg`;
-			url = encodeURI(src_url);
-			return url;
+			urls.push(encodeURI(src_url));
+			return urls;
 		break;
-		default: return null;
 	}
-}
 
-function getKonachanSampleUrls(tag)
-{
-	const uid    = tag.uid;
-	const id     = tag.id;
-	const format = tag.format;
-	const tags   = tag.tags;
-
-	let urls = [];
-	urls.push(`/sample/${uid}/Konachan.com - ${id} sample.jpg`);
-	urls.push(`/jpeg/${uid}/Konachan.com - ${id} ${tags.join(' ')}.jpg`);
-	urls = urls.map((e) => encodeURI(`https://konachan.net/${e}`));
-
-	return urls;
+	return urls; //! empty
 }
 
 function download(url)
 {
-	return new Promise((resolve,reject) => {
+	return new Promise((resolve, reject) => {
         https.get(url, (req, res) => {
-            let html = '';
+            let data = '';
             req.setEncoding('binary');
+            req.on('response', (resp) => {
+            	console.log(resp);
+            });
             req.on('data', (chunk) => {
             	// console.log(`HTTPS GET: receive ${chunk.length} bytes`);
-            	html += chunk;
+            	data += chunk;
             });
             req.on('end', () => {
             	// console.log(`HTTPS GET: done`);
-            	resolve(html);
+            	resolve(data);
 			});
         }).on('error', (e) => {
         	// console.log(`HTTPS GET: error:`, e.message);
@@ -244,9 +233,9 @@ function download(url)
 
 module.exports =
 {
-	randomPickKonachan,
 	pickKonachanByTags,
-	parseKonachanImageTag2CHSUrl,
-	getKonachanSampleUrls,
-	download
+	tag2urls,
+	download,
+	countTags,
+	scanTags
 };
