@@ -80,7 +80,7 @@ MyBot.addListener('message.private.normal', 'port-3', (info) => {
 ### 插件
 MelaiiBot的插件具有统一的格式。<br/>
 一个名为`${PLUGIN}`的插件应当被安装到`/plugins/${PLUGIN}`目录下并拥有以下结构：<br/>
-* `/plugin/${PLUGIN}/${PLUGIN}_listener.js` `neccessary`<br/>
-* `/plugin/${PLUGIN}/${PLUGIN}.js` `optional`<br/>
-* `/plugin/${PLUGIN}/${PLUGIN}.json` `optional`<br/>
-* `/plugin/${PLUGIN}/...` `optional`<br/>
+* `/plugins/${PLUGIN}/${PLUGIN}_listener.js` `neccessary`<br/>
+* `/plugins/${PLUGIN}/${PLUGIN}.js` `optional`<br/>
+* `/plugins/${PLUGIN}/${PLUGIN}.json` `optional`<br/>
+* `/plugins/${PLUGIN}/...` `optional`<br/>
